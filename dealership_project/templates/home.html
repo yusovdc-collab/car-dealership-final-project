@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Car Dealership Reviews</title>
 
     <style>
@@ -13,113 +16,199 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #222;
+            font-size: 15px;
+            background-color: #f3f5f9;
+            color: #172235;
         }
 
         header {
-            background: #19365b;
+            background-color: #1b395f;
             color: white;
-            padding: 28px 35px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         header h1 {
-            margin: 0 0 12px;
-            font-size: 28px;
+            font-size: 23px;
+            margin: 0 0 7px;
         }
 
         header p {
+            font-size: 12px;
             margin: 0;
+        }
+
+        .account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account strong {
             font-size: 14px;
         }
 
         main {
-            max-width: 850px;
-            margin: 50px auto;
-            padding: 0 20px;
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 0 16px;
         }
 
         h2 {
-            margin-bottom: 25px;
+            font-size: 19px;
         }
 
-        .dealer-card {
+        .dealer {
             background: white;
-            padding: 25px;
-            margin-bottom: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 12px 0;
+            box-shadow: 0 1px 4px #0002;
         }
 
-        .dealer-card h3 {
-            margin-top: 0;
-            color: #19365b;
+        .dealer h3 {
+            font-size: 16px;
+            color: #1b395f;
+            margin: 0 0 12px;
         }
 
-        .dealer-card p {
-            margin: 9px 0;
-            font-size: 15px;
+        .dealer p {
+            margin: 5px 0;
+            font-size: 13px;
         }
 
-        .dealer-link {
+        .btn {
             display: inline-block;
-            margin-top: 12px;
-            padding: 10px 16px;
-            background: #19365b;
+            background-color: #1b395f;
             color: white;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 3px;
             text-decoration: none;
-            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
         }
 
-        .dealer-link:hover {
-            background: #28558a;
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        header .btn {
+            background: white;
+            color: #1b395f;
+        }
+
+        form {
+            display: inline;
         }
     </style>
 </head>
 
 <body>
 
-<header>
-    <h1>Car Dealership Reviews</h1>
-    <p>Find dealerships and explore customer reviews</p>
-</header>
+    <header>
 
-<main>
+        <div>
+            <h1>Car Dealership Reviews</h1>
+            <p>
+                Find dealerships and explore customer reviews
+            </p>
+        </div>
 
-    <h2>Available Dealerships</h2>
+        <div class="account">
 
-    {% for dealer in dealers %}
+            {% if user.is_authenticated %}
 
-    <div class="dealer-card">
+                <strong>
+                    Welcome, {{ user.username }}
+                </strong>
 
-        <h3>{{ dealer.full_name }}</h3>
+                <form method="post"
+                      action="{% url 'site_logout' %}">
 
-        <p><strong>Dealer ID:</strong> {{ dealer.id }}</p>
+                    {% csrf_token %}
 
-        <p><strong>Dealership Name:</strong> {{ dealer.full_name }}</p>
+                    <button class="btn" type="submit">
+                        Logout
+                    </button>
 
-        <p><strong>Street Address:</strong> {{ dealer.address }}</p>
+                </form>
 
-        <p><strong>City:</strong> {{ dealer.city }}</p>
+            {% else %}
 
-        <p><strong>State:</strong> {{ dealer.state }}</p>
+                <a class="btn"
+                   href="{% url 'site_login' %}">
+                    Login
+                </a>
 
-        <p><strong>ZIP Code:</strong> {{ dealer.zip }}</p>
+            {% endif %}
 
-        <a class="dealer-link"
-           href="{% url 'dealer_details' dealer.id %}">
-            View Dealership Reviews
-        </a>
+        </div>
 
-    </div>
+    </header>
 
-    {% empty %}
+    <main>
 
-    <p>No dealerships are currently available.</p>
+        <h2>Available Dealerships</h2>
 
-    {% endfor %}
+        {% for dealer in dealers %}
 
-</main>
+            <article class="dealer">
+
+                <h3>{{ dealer.full_name }}</h3>
+
+                <p>
+                    <b>Dealer ID:</b>
+                    {{ dealer.id }}
+                </p>
+
+                <p>
+                    <b>Dealership Name:</b>
+                    {{ dealer.full_name }}
+                </p>
+
+                <p>
+                    <b>Street Address:</b>
+                    {{ dealer.address }}
+                </p>
+
+                <p>
+                    <b>City:</b>
+                    {{ dealer.city }}
+                </p>
+
+                <p>
+                    <b>State:</b>
+                    {{ dealer.state }}
+                </p>
+
+                <p>
+                    <b>ZIP Code:</b>
+                    {{ dealer.zip }}
+                </p>
+
+                <p style="margin-top: 15px;">
+
+                    <a class="btn"
+                       href="{% url 'dealer_details' dealer.id %}">
+                        View Dealership Reviews
+                    </a>
+
+                </p>
+
+            </article>
+
+        {% empty %}
+
+            <p>No dealerships available.</p>
+
+        {% endfor %}
+
+    </main>
 
 </body>
 </html>
