@@ -1,0 +1,2 @@
+curl.exe http://127.0.0.1:8000/djangoapp/get_dealers
+{"dealers": [{"id": 1, "full_name": "Best Cars Dealership", "city": "New York", "state": "NY"}, {"id": 2, "full_name": "Premium Auto Sales", "city": "Los Angeles", "state": "CA"}, {"id": 3, "full_name": "Sunshine Auto Group", "city": "Miami", "state": "FL"}]}

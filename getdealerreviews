@@ -1,0 +1,2 @@
+curl.exe http://127.0.0.1:8000/djangoapp/get_dealer_reviews/1
+{"reviews": [{"id": 1, "dealership": 1, "name": "John Smith", "review": "Great customer service!", "purchase": true}, {"id": 2, "dealership": 1, "name": "Sarah Johnson", "review": "Helpful staff and good prices.", "purchase": true}, {"id": 3, "dealership": 1, "name": "Michael Davis", "review": "Excellent selection of vehicles.", "purchase": false}]}

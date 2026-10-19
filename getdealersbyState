@@ -1,0 +1,2 @@
+curl.exe http://127.0.0.1:8000/djangoapp/get_dealers_by_state/KS
+{"dealers": [{"id": 4, "full_name": "Kansas City Auto Sales", "city": "Kansas City", "state": "KS"}]}
