@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Dealership Reviews</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #19365b;
+            color: white;
+            padding: 28px 35px;
+        }
+
+        header h1 {
+            margin: 0 0 12px;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        main {
+            max-width: 850px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+        }
+
+        .dealer-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .dealer-card h3 {
+            margin-top: 0;
+            color: #19365b;
+        }
+
+        .dealer-card p {
+            margin: 9px 0;
+            font-size: 15px;
+        }
+
+        .dealer-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #19365b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .dealer-link:hover {
+            background: #28558a;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Car Dealership Reviews</h1>
+    <p>Find dealerships and explore customer reviews</p>
+</header>
+
+<main>
+
+    <h2>Available Dealerships</h2>
+
+    {% for dealer in dealers %}
+
+    <div class="dealer-card">
+
+        <h3>{{ dealer.full_name }}</h3>
+
+        <p><strong>Dealer ID:</strong> {{ dealer.id }}</p>
+
+        <p><strong>Dealership Name:</strong> {{ dealer.full_name }}</p>
+
+        <p><strong>Street Address:</strong> {{ dealer.address }}</p>
+
+        <p><strong>City:</strong> {{ dealer.city }}</p>
+
+        <p><strong>State:</strong> {{ dealer.state }}</p>
+
+        <p><strong>ZIP Code:</strong> {{ dealer.zip }}</p>
+
+        <a class="dealer-link"
+           href="{% url 'dealer_details' dealer.id %}">
+            View Dealership Reviews
+        </a>
+
+    </div>
+
+    {% empty %}
+
+    <p>No dealerships are currently available.</p>
+
+    {% endfor %}
+
+</main>
+
+</body>
+</html>

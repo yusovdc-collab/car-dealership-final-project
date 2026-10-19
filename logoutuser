@@ -1,0 +1,10 @@
+Task 6: Logout Operation
+
+cURL Command:
+curl.exe -i -X GET "http://127.0.0.1:8000/djangoapp/logout"
+
+Actual HTTP Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"userName": ""}

@@ -1,59 +1,13 @@
 import json
 import re
 
+from datetime import date
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
-
-
-# ==========================================
-# USER LOGIN
-# ==========================================
-
-@require_POST
-def login_user(request):
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse(
-            {"error": "Invalid JSON"},
-            status=400
-        )
-
-    username = data.get("username", "")
-    password = data.get("password", "")
-
-    user = authenticate(
-        request,
-        username=username,
-        password=password
-    )
-
-    if user is not None:
-        login(request, user)
-        return JsonResponse({
-            "status": "Authenticated",
-            "username": user.username
-        })
-
-    return JsonResponse({
-        "status": "Failed",
-        "message": "Invalid username or password"
-    }, status=401)
-
-
-# ==========================================
-# USER LOGOUT
-# ==========================================
-
-@require_POST
-def logout_user(request):
-    logout(request)
-    return JsonResponse({
-        "status": "Logged out successfully"
-    })
 
 
 # ==========================================
@@ -64,26 +18,46 @@ DEALERS = [
     {
         "id": 1,
         "full_name": "Best Cars Dealership",
+        "short_name": "Best Cars",
+        "address": "100 Example Avenue",
         "city": "New York",
-        "state": "NY"
+        "state": "NY",
+        "zip": "10001",
+        "lat": 40.7506,
+        "long": -73.9972
     },
     {
         "id": 2,
         "full_name": "Premium Auto Sales",
+        "short_name": "Premium Auto",
+        "address": "200 Example Boulevard",
         "city": "Los Angeles",
-        "state": "CA"
+        "state": "CA",
+        "zip": "90001",
+        "lat": 34.0522,
+        "long": -118.2437
     },
     {
         "id": 3,
         "full_name": "Sunshine Auto Group",
+        "short_name": "Sunshine Auto",
+        "address": "300 Example Street",
         "city": "Miami",
-        "state": "FL"
+        "state": "FL",
+        "zip": "33101",
+        "lat": 25.7617,
+        "long": -80.1918
     },
     {
         "id": 4,
         "full_name": "Kansas City Auto Sales",
+        "short_name": "Kansas City Auto",
+        "address": "400 Example Road",
         "city": "Kansas City",
-        "state": "KS"
+        "state": "KS",
+        "zip": "66101",
+        "lat": 39.1141,
+        "long": -94.6275
     }
 ]
 
@@ -98,21 +72,33 @@ REVIEWS = [
         "dealership": 1,
         "name": "John Smith",
         "review": "Great customer service!",
-        "purchase": True
+        "purchase": True,
+        "purchase_date": "2026-05-10",
+        "car_make": "Toyota",
+        "car_model": "Camry",
+        "car_year": 2022
     },
     {
         "id": 2,
         "dealership": 1,
         "name": "Sarah Johnson",
         "review": "Helpful staff and good prices.",
-        "purchase": True
+        "purchase": True,
+        "purchase_date": "2026-06-15",
+        "car_make": "Honda",
+        "car_model": "Civic",
+        "car_year": 2023
     },
     {
         "id": 3,
         "dealership": 1,
         "name": "Michael Davis",
         "review": "Excellent selection of vehicles.",
-        "purchase": False
+        "purchase": False,
+        "purchase_date": None,
+        "car_make": None,
+        "car_model": None,
+        "car_year": None
     }
 ]
 
@@ -162,7 +148,7 @@ CAR_MAKES = [
 
 
 # ==========================================
-# HELPERS
+# HELPER FUNCTIONS
 # ==========================================
 
 def find_dealer(dealer_id):
@@ -180,6 +166,79 @@ def dealer_review_list(dealer_id):
         review for review in REVIEWS
         if review["dealership"] == dealer_id
     ]
+
+
+# ==========================================
+# QUESTION 16 - HOMEPAGE
+# ==========================================
+
+@require_GET
+def home(request):
+    return render(
+        request,
+        "home.html",
+        {
+            "dealers": DEALERS
+        }
+    )
+
+
+# ==========================================
+# QUESTION 5 - USER LOGIN
+# ==========================================
+
+@require_POST
+def login_user(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse(
+            {"error": "Invalid JSON"},
+            status=400
+        )
+
+    username = data.get(
+        "userName",
+        data.get("username", "")
+    )
+
+    password = data.get("password", "")
+
+    user = authenticate(
+        request,
+        username=username,
+        password=password
+    )
+
+    if user is not None:
+        login(request, user)
+
+        return JsonResponse({
+            "userName": user.username,
+            "status": "Authenticated"
+        })
+
+    return JsonResponse(
+        {
+            "userName": "",
+            "status": "Failed",
+            "message": "Invalid username or password"
+        },
+        status=401
+    )
+
+
+# ==========================================
+# QUESTION 6 - USER LOGOUT
+# ==========================================
+
+@require_GET
+def logout_user(request):
+    logout(request)
+
+    return JsonResponse({
+        "userName": ""
+    })
 
 
 # ==========================================
@@ -242,7 +301,7 @@ def get_dealers_by_state(request, state):
 
 
 # ==========================================
-# QUESTION 14 - GET CAR MAKES AND MODELS
+# QUESTION 14 - GET CAR MAKES
 # ==========================================
 
 @require_GET
@@ -257,51 +316,87 @@ def get_all_car_makes(request):
 # ==========================================
 
 POSITIVE_WORDS = {
-    "fantastic", "excellent", "great",
-    "amazing", "good", "wonderful",
-    "helpful", "best", "friendly",
+    "fantastic",
+    "excellent",
+    "great",
+    "amazing",
+    "good",
+    "wonderful",
+    "helpful",
+    "best",
+    "friendly",
     "outstanding"
 }
 
 NEGATIVE_WORDS = {
-    "bad", "terrible", "poor",
-    "awful", "horrible", "worst",
-    "disappointing", "rude", "unhelpful"
+    "bad",
+    "terrible",
+    "poor",
+    "awful",
+    "horrible",
+    "worst",
+    "disappointing",
+    "rude",
+    "unhelpful"
 }
 
 
-@require_GET
-def analyze_review(request):
-    review_text = request.GET.get("text", "").strip()
-
-    if not review_text:
-        return JsonResponse({
-            "error": "Review text is required"
-        }, status=400)
-
+def calculate_sentiment(review_text):
     words = re.findall(
         r"\b\w+\b",
         review_text.lower()
     )
 
     positive_count = sum(
-        word in POSITIVE_WORDS for word in words
+        word in POSITIVE_WORDS
+        for word in words
     )
 
     negative_count = sum(
-        word in NEGATIVE_WORDS for word in words
+        word in NEGATIVE_WORDS
+        for word in words
     )
 
     if positive_count > negative_count:
-        sentiment = "positive"
-    elif negative_count > positive_count:
-        sentiment = "negative"
-    else:
-        sentiment = "neutral"
+        return "positive"
+
+    if negative_count > positive_count:
+        return "negative"
+
+    return "neutral"
+
+
+@require_GET
+def analyze_review(request):
+    review_text = request.GET.get(
+        "text", ""
+    ).strip()
+
+    if not review_text:
+        return JsonResponse(
+            {"error": "Review text is required"},
+            status=400
+        )
 
     return JsonResponse({
         "text": review_text,
-        "sentiment": sentiment
+        "sentiment": calculate_sentiment(review_text)
+    })
+
+
+@require_GET
+def analyze_review_path(request, review_text):
+    review_text = review_text.strip()
+
+    if not review_text:
+        return JsonResponse(
+            {"error": "Review text is required"},
+            status=400
+        )
+
+    return JsonResponse({
+        "text": review_text,
+        "sentiment": calculate_sentiment(review_text)
     })
 
 
@@ -364,15 +459,26 @@ def post_review(request, dealer_id):
 
         purchase = request.POST.get(
             "purchase", "no"
-        ) == "yes"
+        ).lower() in ("yes", "true", "on", "1")
 
         car_make = request.POST.get(
             "car_make", ""
-        )
+        ).strip()
 
         car_model = request.POST.get(
             "car_model", ""
-        )
+        ).strip()
+
+        car_year_text = request.POST.get(
+            "car_year", ""
+        ).strip()
+
+        purchase_date_text = request.POST.get(
+            "purchase_date", ""
+        ).strip()
+
+        car_year = None
+        purchase_date = None
 
         if not review_text:
             error = "Please enter a review."
@@ -384,7 +490,27 @@ def post_review(request, dealer_id):
                 "Please select a car make and model."
             )
 
-        else:
+        elif purchase:
+            if car_year_text:
+                try:
+                    car_year = int(car_year_text)
+
+                    if not 1886 <= car_year <= date.today().year + 1:
+                        error = "Please enter a valid car year."
+
+                except ValueError:
+                    error = "Please enter a valid car year."
+
+            if purchase_date_text:
+                try:
+                    purchase_date = date.fromisoformat(
+                        purchase_date_text
+                    ).isoformat()
+
+                except ValueError:
+                    error = "Please enter a valid purchase date."
+
+        if error is None:
             new_review = {
                 "id": max(
                     [r["id"] for r in REVIEWS],
@@ -394,11 +520,17 @@ def post_review(request, dealer_id):
                 "name": request.user.username,
                 "review": review_text,
                 "purchase": purchase,
+                "purchase_date": (
+                    purchase_date if purchase else None
+                ),
                 "car_make": (
-                    car_make if purchase else ""
+                    car_make if purchase else None
                 ),
                 "car_model": (
-                    car_model if purchase else ""
+                    car_model if purchase else None
+                ),
+                "car_year": (
+                    car_year if purchase else None
                 )
             }
 
@@ -420,3 +552,11 @@ def post_review(request, dealer_id):
         "post_review.html",
         context
     )
+
+
+# ==========================================
+# SITE LOGIN
+# ==========================================
+
+def site_login(request):
+    return redirect("home")

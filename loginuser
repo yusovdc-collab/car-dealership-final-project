@@ -1,0 +1,18 @@
+Task 5: Login Operation
+
+Endpoint: POST http://127.0.0.1:8000/djangoapp/login
+
+cURL Command:
+curl.exe -i -X POST "http://127.0.0.1:8000/djangoapp/login" -H "Content-Type: application/json" --data-binary "@..\login_request.json"
+
+JSON Request Body:
+{
+  "userName": "dir",
+  "password": "[REDACTED]"
+}
+
+Actual HTTP Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"userName": "dir", "status": "Authenticated"}
